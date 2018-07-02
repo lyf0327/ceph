@@ -1,0 +1,26 @@
+第一步：确认ntp服务是否正常工作
+
+参考本人博客： centos7 查看启动ntp服务命令
+第二步：修改ceph配置中的时间偏差阈值
+
+1. 在admin部署节点修改配置参数：
+
+# vi ~/my-cluster/ceph.conf
+
+在global字段下添加：
+
+mon clock drift allowed = 2
+mon clock drift warn backoff = 30    
+
+2. 向需要同步的mon节点推送配置文件：
+
+# ceph-deploy --overwrite-conf config push node{1..3}
+
+这里是向node1 node2 node3推送，也可以后跟其它不连续节点
+3. 重启mon服务（centos7环境下）
+
+# systemctl restart ceph-mon.target
+
+4.验证：
+
+# ceph -s
